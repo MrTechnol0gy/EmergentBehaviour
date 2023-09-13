@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class CivilianAI : MonoBehaviour
+public class HunterAI : MonoBehaviour
 {
-    // This script controls the behaviour of the civilian agents
+    // This script controls the behaviour of the hunter agents
 
     // The agent's Navmesh Agent
     private NavMeshAgent agent;
@@ -19,7 +19,6 @@ public class CivilianAI : MonoBehaviour
     public enum States
     {
         moving,
-        fleeing,
     }
     private States _currentState = States.moving;       //sets the starting enemy state    
     public States currentState 
@@ -49,16 +48,11 @@ public class CivilianAI : MonoBehaviour
         {
             case States.moving:
                 //Debug.Log("I am moving.");
-                // Sets the agent's color to black
-                GetComponent<Renderer>().material.color = Color.black;
+                // Sets the agent's color to grey
+                GetComponent<Renderer>().material.color = Color.grey;
                 // Get a new destination
                 GoHere();
-                break;            
-            case States.fleeing:
-                //Debug.Log("I am fleeing.");
-                // Sets the agent's color to yellow
-                GetComponent<Renderer>().material.color = Color.yellow;
-                break;
+                break; 
         }
     }
     // OnUpdatedState is for things that occur during the state (main actions)
@@ -82,9 +76,6 @@ public class CivilianAI : MonoBehaviour
                     // Check to see if the agent has reached their destination
                     CheckDestinationReached();             
                 break;
-            case States.fleeing:
-                //Debug.Log("I am fleeing.");                
-                break;
         }
     }
 
@@ -94,8 +85,6 @@ public class CivilianAI : MonoBehaviour
         switch (state) 
         {
             case States.moving:
-                break;
-            case States.fleeing:
                 break;
         }
     }

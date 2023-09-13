@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class CivilianAI : MonoBehaviour
+public class VampireAI : MonoBehaviour
 {
-    // This script controls the behaviour of the civilian agents
+    // This script controls the behaviour of the vampire agents
 
     // The agent's Navmesh Agent
     private NavMeshAgent agent;
@@ -49,8 +49,8 @@ public class CivilianAI : MonoBehaviour
         {
             case States.moving:
                 //Debug.Log("I am moving.");
-                // Sets the agent's color to black
-                GetComponent<Renderer>().material.color = Color.black;
+                // Sets the agent's color to red
+                GetComponent<Renderer>().material.color = Color.red;
                 // Get a new destination
                 GoHere();
                 break;            
