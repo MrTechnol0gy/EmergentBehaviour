@@ -16,12 +16,15 @@ public class CivilianAI : MonoBehaviour
     private bool destinationReached = false;
     // Bool to check if the agent is near another agent
     private bool nearAgent = false;
+    // Bool to check if the agent is near a hunter
+    private bool nearHunter = false;
     // Time the state started
     public float TimeStartedState;
     public enum States
     {
         moving,
         hunting,
+        fleeing,
     }
     private States _currentState = States.moving;       //sets the starting enemy state    
     public States currentState 
@@ -72,6 +75,11 @@ public class CivilianAI : MonoBehaviour
                     }
                 }
                 break;
+            case States.fleeing:
+                //Debug.Log("I am fleeing.");
+                // Sets the agent's color to yellow
+                GetComponent<Renderer>().material.color = Color.yellow;
+                break;
         }
     }
     // OnUpdatedState is for things that occur during the state (main actions)
@@ -90,17 +98,27 @@ public class CivilianAI : MonoBehaviour
                     // Reset the destination reached bool
                     destinationReached = false;
                 }
-                else if (!destinationReached && !nearAgent)
+                else if (!destinationReached && !nearAgent && !nearHunter)
                 {
                     // Check to see if the agent is near another agent
                     CheckForAgent();
                     // Check to see if the agent has reached their destination
                     CheckDestinationReached();
                 }
+                else if (nearHunter)
+                {
+                    // Set state to fleeing
+                    currentState = States.fleeing;
+                }
                 else if (nearAgent)
                 {
                     // Set state to hunting
                     currentState = States.hunting;
+                }
+                else 
+                {
+                    // Continue towards current destination
+                    agent.SetDestination(destination);
                 }
                 break;
             case States.hunting:
@@ -123,6 +141,26 @@ public class CivilianAI : MonoBehaviour
                     PursueAgent();  
                 }
                 break;
+            case States.fleeing:
+                //Debug.Log("I am fleeing.");
+                if (destinationReached)
+                {
+                    // Get a new destination
+                    FleeFromHunter();
+                    // Reset the destination reached bool
+                    destinationReached = false;
+                }
+                else if (!destinationReached)
+                {
+                    // Check to see if the agent has reached their destination
+                    CheckDestinationReached();
+                }
+                else 
+                {
+                    // Flee from the hunter
+                    agent.SetDestination(destination);  
+                }
+                break;
         }
     }
 
@@ -132,6 +170,10 @@ public class CivilianAI : MonoBehaviour
         switch (state) 
         {
             case States.moving:
+                break;
+            case States.hunting:
+                break;
+            case States.fleeing:
                 break;
         }
     }
@@ -171,7 +213,11 @@ public class CivilianAI : MonoBehaviour
         {
             if (otherAgent != gameObject)
             {
-                if (Vector3.Distance(transform.position, otherAgent.transform.position) < 3f)
+                if (Vector3.Distance(transform.position, otherAgent.transform.position) < 10f && otherAgent.GetComponent<Renderer>().material.color == Color.red)
+                {
+                    nearHunter = true;
+                }
+                else if (Vector3.Distance(transform.position, otherAgent.transform.position) < 2f && otherAgent.GetComponent<Renderer>().material.color == Color.black)
                 {
                     nearAgent = true;
                 }
@@ -183,10 +229,51 @@ public class CivilianAI : MonoBehaviour
     {
         agent.SetDestination(destination);
     }
+
+    // Sets the agent's destination to a point on the navmesh farthest from the closest hunter agent
+    void FleeFromHunter()
+    {
+        // Get the list of agents
+        List<GameObject> agents = GameObject.Find("AgentSpawner").GetComponent<AgentSpawner>().GetAgents();
+        // For each hunter agent
+        foreach (GameObject otherAgent in agents)
+        {
+            if (otherAgent.GetComponent<Renderer>().material.color == Color.red)
+            {
+                // add each hunter agent's position to a list
+                List<Vector3> hunterPositions = new List<Vector3>
+                {
+                    otherAgent.transform.position
+                };
+                // get the position of the hunter agent closest to this agent
+                Vector3 closestHunterPosition = hunterPositions[0];
+                foreach (Vector3 hunterPosition in hunterPositions)
+                {
+                    if (Vector3.Distance(transform.position, hunterPosition) < Vector3.Distance(transform.position, closestHunterPosition))
+                    {
+                        closestHunterPosition = hunterPosition;
+                    }
+                }
+                // Get the other agents position
+                Vector3 otherAgentPosition = closestHunterPosition;
+                // Get the direction to the other agent
+                Vector3 direction = transform.position - otherAgentPosition;
+                // Get the opposite direction
+                Vector3 oppositeDirection = -direction;
+                // Get the point on the navmesh farthest from the other agent
+                NavMeshHit hit;
+                NavMesh.SamplePosition(oppositeDirection, out hit, 100f, NavMesh.AllAreas);
+                // Set the agent's destination to the point on the navmesh farthest from the other agent
+                destination = hit.position;
+                // Breaks out of the foreach loop
+                break;
+            }
+        }
+    }
     // Gets a destination agent for the hunter agent
     void GetDestinationAgent()
     {
-        // Find an agent whose colour is black to chase
+        // Find an agent whose colour is black or yellow to chase
         List<GameObject> agents = GameObject.Find("AgentSpawner").GetComponent<AgentSpawner>().GetAgents();
         foreach (GameObject otherAgent in agents)
         {
@@ -195,6 +282,14 @@ public class CivilianAI : MonoBehaviour
                 // Set the agent's destination to the agent's position
                 destination = otherAgent.transform.position;
                 agent.SetDestination(destination);
+                break;
+            }
+            else if (otherAgent.GetComponent<Renderer>().material.color == Color.yellow)
+            {
+                // Set the agent's destination to the agent's position
+                destination = otherAgent.transform.position;
+                agent.SetDestination(destination);
+                break;
             }
         }
     }
@@ -203,7 +298,7 @@ public class CivilianAI : MonoBehaviour
     void CheckDestinationReached()
     {
         // If the agent has reached their destination
-        if (agent.remainingDistance < 1f)
+        if (agent.remainingDistance < 2f)
         {
             destinationReached = true;
         }
