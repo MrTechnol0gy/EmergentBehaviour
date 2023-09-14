@@ -14,6 +14,8 @@ public class CivilianAI : MonoBehaviour
     private Vector3 destination;
     // Bool to check if the agent has reached their destination
     private bool destinationReached = false;
+    // Reference to the agent spawner script
+    private AgentSpawner agentSpawner;
     // Time the state started
     public float TimeStartedState;
     public enum States
@@ -72,15 +74,20 @@ public class CivilianAI : MonoBehaviour
                 // Check to see if the agent has reached their destination
                 if (destinationReached)
                 {
+                    // Check to see if the agent is in danger
+                    CheckDanger();
                     // Get a new destination
                     GoHere();
                     // Reset the destination reached bool
                     destinationReached = false;
                 }
                 else if (!destinationReached)
-                
+                {
+                    // Check to see if the agent is in danger
+                    CheckDanger();
                     // Check to see if the agent has reached their destination
                     CheckDestinationReached();             
+                }
                 break;
             case States.fleeing:
                 //Debug.Log("I am fleeing.");                
@@ -102,6 +109,8 @@ public class CivilianAI : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        // Get the agent spawner script
+        agentSpawner = GameObject.Find("AgentSpawner").GetComponent<AgentSpawner>();
         OnStartedState(currentState);
     }
 
@@ -126,7 +135,31 @@ public class CivilianAI : MonoBehaviour
         destination = Vector3.Lerp(v0, Vector3.Lerp(v1, v2, UnityEngine.Random.value), UnityEngine.Random.value);
         // Set the agent's destination
         agent.SetDestination(destination);
-    }       
+    }     
+    // Checks to see if the agent is in danger
+    void CheckDanger()
+    {
+        // Get the closest hunter
+        GameObject closestHunter = GetClosestHunter();
+        // Get the closest vampire
+        GameObject closestVampire = GetClosestVampire();
+        // Get the distance between the agent and the closest hunter
+        float hunterDistance = Vector3.Distance(transform.position, closestHunter.transform.position);
+        // Get the distance between the agent and the closest vampire
+        float vampireDistance = Vector3.Distance(transform.position, closestVampire.transform.position);
+        // If the agent is closer to the hunter than the vampire
+        if (hunterDistance < vampireDistance)
+        {
+            // Set the agent's destination to the opposite side of the hunter
+            agent.SetDestination(transform.position + (transform.position - closestHunter.transform.position));
+        }
+        // If the agent is closer to the vampire than the hunter
+        else if (vampireDistance < hunterDistance)
+        {
+            // Set the agent's destination to the opposite side of the vampire
+            agent.SetDestination(transform.position + (transform.position - closestVampire.transform.position));
+        }
+    }  
     // Checks to see if the agent has reached their destination
     void CheckDestinationReached()
     {
@@ -136,6 +169,61 @@ public class CivilianAI : MonoBehaviour
             destinationReached = true;
         }
     }
+    
+    // Gets the closest hunter and returns it
+    GameObject GetClosestHunter()
+    {
+        // Get the list of hunters
+        List<GameObject> hunters = agentSpawner.GetHunters();
+        // Set the closest hunter
+        GameObject closestHunter = null;
+        // Set the closest distance
+        float closestDistance = Mathf.Infinity;
+        // Loop through the list of hunters
+        foreach (GameObject hunter in hunters)
+        {
+            // Get the distance between the agent and the hunter
+            float distance = Vector3.Distance(transform.position, hunter.transform.position);
+            // If the distance is less than the closest distance
+            if (distance < closestDistance)
+            {
+                // Set the closest hunter
+                closestHunter = hunter;
+                // Set the closest distance
+                closestDistance = distance;
+            }
+        }
+        // Return the closest hunter
+        return closestHunter;
+    }
+
+    // Gets the closest vampire and returns it
+    GameObject GetClosestVampire()
+    {
+        // Get the list of vampires
+        List<GameObject> vampires = agentSpawner.GetVampires();
+        // Set the closest vampire
+        GameObject closestVampire = null;
+        // Set the closest distance
+        float closestDistance = Mathf.Infinity;
+        // Loop through the list of vampires
+        foreach (GameObject vampire in vampires)
+        {
+            // Get the distance between the agent and the vampire
+            float distance = Vector3.Distance(transform.position, vampire.transform.position);
+            // If the distance is less than the closest distance
+            if (distance < closestDistance)
+            {
+                // Set the closest vampire
+                closestVampire = vampire;
+                // Set the closest distance
+                closestDistance = distance;
+            }
+        }
+        // Return the closest vampire
+        return closestVampire;
+    }
+
     // This method can be used to test if a certain time has elapsed since we registered an event time. 
     public bool TimeElapsedSince(float timeEventHappened, float testingTimeElapsed) => !(timeEventHappened + testingTimeElapsed > Time.time);
 
