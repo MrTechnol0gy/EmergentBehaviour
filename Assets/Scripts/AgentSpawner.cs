@@ -97,6 +97,36 @@ public class AgentSpawner : MonoBehaviour
         spawnLocation = point;
     }
 
+    // Remove an agent prefab from the game and replace it with a vampire prefab
+    public void ReplaceAgent(GameObject agent)
+    {
+        // Get the agent's position
+        Vector3 position = agent.transform.position;
+        // Get the agent's rotation
+        Quaternion rotation = agent.transform.rotation;
+        // Remove the agent from the list of agents
+        agents.Remove(agent);
+        // if the agent is a civilian, remove it from the list of civilians
+        if (civilians.Contains(agent))
+        {
+            civilians.Remove(agent);
+        }
+        // if the agent is a hunter, remove it from the list of hunters
+        else if (hunters.Contains(agent))
+        {
+            hunters.Remove(agent);
+        }
+        // Destroy the agent
+        Destroy(agent);
+        // Spawn a vampire
+        GameObject vampire = Instantiate(vampirePrefab, position, rotation);
+        // Add the vampire to the list of agents
+        agents.Add(vampire);
+        // Add the vampire to the list of vampires
+        vampires.Add(vampire);
+    }
+    
+
     // Get the list of all agents
     public List<GameObject> GetAgents()
     {
