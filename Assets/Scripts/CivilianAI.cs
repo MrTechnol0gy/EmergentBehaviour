@@ -16,6 +16,8 @@ public class CivilianAI : MonoBehaviour
     private bool destinationReached = false;
     // Bool to check if the agent has been bitten
     private bool bitten = false;
+    // how long the agent has been bitten
+    private float timeBitten = 0f;
     // Reference to the agent spawner script
     private AgentSpawner agentSpawner;
     // Time the state started
@@ -68,11 +70,15 @@ public class CivilianAI : MonoBehaviour
                 //Debug.Log("I am moving.");                
                 // Check to see if the agent has been bitten
                 AmIBitten();
+                // If the agent has been bitten for 2 seconds, replace them with a vampire
                 if (bitten)
                 {
-                    // let the AgentSpawner script know to replace this agent with a vampire
-                    agentSpawner.ReplaceAgent(gameObject);
-                    break;
+                    if (TimeElapsedSince(timeBitten, 2f))
+                    {
+                        // let the AgentSpawner script know to replace this agent with a vampire
+                        agentSpawner.ReplaceAgent(gameObject);
+                        break;                        
+                    }
                 }
                 // Check to see if the agent has reached their destination
                 else if (destinationReached)
@@ -234,6 +240,7 @@ public class CivilianAI : MonoBehaviour
         // if the distance is less than 5f, break out of the method
         if (hunterDistance < 5f)
         {
+            timeBitten = 0f;
             return;
         }
         // Get the distance between the agent and the closest vampire
@@ -241,6 +248,10 @@ public class CivilianAI : MonoBehaviour
         // If the distance is less than 2f
         if (distance < 2f)
         {
+            if (!bitten)
+            {
+                timeBitten = Time.time;
+            }
             // Set the bitten bool to true
             bitten = true;
         }

@@ -10,12 +10,8 @@ public class VampireAI : MonoBehaviour
 
     // The agent's Navmesh Agent
     private NavMeshAgent agent;
-    // The agent's destination
-    private Vector3 destination;
     // Bool to check if there are no more civilians
     private bool noMoreCivilians = false;
-    // Bool to see if I'm turned
-    private bool turned = false;
     // timer for how long it's been since I encountered a hunter
     private float timeSinceEncounter = 0;
     
@@ -28,7 +24,6 @@ public class VampireAI : MonoBehaviour
         fleeing,
         pursuing,
         extinction,
-        turned,
     }
     private States _currentState = States.pursuing;       //sets the starting enemy state    
     public States currentState 
@@ -60,6 +55,8 @@ public class VampireAI : MonoBehaviour
                 //Debug.Log("I am fleeing.");
                 // Sets the agent's color to yellow
                 GetComponent<Renderer>().material.color = Color.yellow;
+                // starts the counter for how long it's been since I encountered a hunter
+                timeSinceEncounter = Time.time;
                 break;
             case States.pursuing:
                 //Debug.Log("I am pursuing.");
@@ -72,12 +69,6 @@ public class VampireAI : MonoBehaviour
                 // Sets the agent's color to blue
                 GetComponent<Renderer>().material.color = Color.blue;
                 break;
-            case States.turned:
-                //Debug.Log("I am turned.");
-                // Sets the agent's color to green
-                GetComponent<Renderer>().material.color = Color.green;
-                //Turn();
-                break;
         }
     }
     // OnUpdatedState is for things that occur during the state (main actions)
@@ -87,6 +78,13 @@ public class VampireAI : MonoBehaviour
         {
             case States.fleeing:
                 //Debug.Log("I am fleeing."); 
+                // If it's been more than 5 seconds since I encountered a hunter
+                if (TimeElapsedSince(timeSinceEncounter, 5))
+                {
+                    // replace me with a civilian
+                    agentSpawner.ReplaceAgent(gameObject);
+                    break;
+                }
                 Flee();  
                 CheckDanger();   
                 CheckNoMoreCivilians();  
@@ -114,9 +112,6 @@ public class VampireAI : MonoBehaviour
                 // Stop the agent
                 agent.isStopped = true;
                 break;
-            case States.turned:
-                //Debug.Log("I am turned."); 
-                break;
         }
     }
 
@@ -130,8 +125,6 @@ public class VampireAI : MonoBehaviour
             case States.pursuing:
                 break;
             case States.extinction:
-                break;
-            case States.turned:
                 break;
         }
     }

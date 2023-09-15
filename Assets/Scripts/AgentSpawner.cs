@@ -7,6 +7,7 @@ using UnityEngine.AI;
 public class AgentSpawner : MonoBehaviour
 {
     // This script spawns a number of agents at random locations on a Navmesh
+    // It is also in charge of replacing them with vampires or civilians when they die
 
     // The civilian prefab to spawn
     public GameObject civviePrefab;
