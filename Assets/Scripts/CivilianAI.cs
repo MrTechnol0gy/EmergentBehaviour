@@ -14,6 +14,8 @@ public class CivilianAI : MonoBehaviour
     private Vector3 destination;
     // Bool to check if the agent has reached their destination
     private bool destinationReached = false;
+    // Bool to check if the agent has been bitten
+    private bool bitten = false;
     // Reference to the agent spawner script
     private AgentSpawner agentSpawner;
     // Time the state started
@@ -21,7 +23,6 @@ public class CivilianAI : MonoBehaviour
     public enum States
     {
         moving,
-        fleeing,
     }
     private States _currentState = States.moving;       //sets the starting enemy state    
     public States currentState 
@@ -55,12 +56,7 @@ public class CivilianAI : MonoBehaviour
                 GetComponent<Renderer>().material.color = Color.black;
                 // Get a new destination
                 GoHere();
-                break;            
-            case States.fleeing:
-                //Debug.Log("I am fleeing.");
-                // Sets the agent's color to yellow
-                GetComponent<Renderer>().material.color = Color.yellow;
-                break;
+                break; 
         }
     }
     // OnUpdatedState is for things that occur during the state (main actions)
@@ -70,9 +66,16 @@ public class CivilianAI : MonoBehaviour
         {
             case States.moving:
                 //Debug.Log("I am moving.");                
-                
+                // Check to see if the agent has been bitten
+                AmIBitten();
+                if (bitten)
+                {
+                    // let the AgentSpawner script know to replace this agent with a vampire
+                    agentSpawner.ReplaceAgent(gameObject);
+                    break;
+                }
                 // Check to see if the agent has reached their destination
-                if (destinationReached)
+                else if (destinationReached)
                 {
                     // Check to see if the agent is in danger
                     CheckDanger();
@@ -89,9 +92,6 @@ public class CivilianAI : MonoBehaviour
                     CheckDestinationReached();             
                 }
                 break;
-            case States.fleeing:
-                //Debug.Log("I am fleeing.");                
-                break;
         }
     }
 
@@ -101,8 +101,6 @@ public class CivilianAI : MonoBehaviour
         switch (state) 
         {
             case States.moving:
-                break;
-            case States.fleeing:
                 break;
         }
     }
@@ -150,8 +148,8 @@ public class CivilianAI : MonoBehaviour
         // If the agent is closer to the hunter than the vampire
         if (hunterDistance < vampireDistance)
         {
-            // Set the agent's destination to the opposite side of the hunter
-            agent.SetDestination(transform.position + (transform.position - closestHunter.transform.position));
+            // Set the agent's destination to the the hunter
+            agent.SetDestination(closestHunter.transform.position);
         }
         // If the agent is closer to the vampire than the hunter
         else if (vampireDistance < hunterDistance)
@@ -223,6 +221,31 @@ public class CivilianAI : MonoBehaviour
         // Return the closest vampire
         return closestVampire;
     }
+
+    // Checks if the closest vampire is within 2f units of the agent and sets the bitten bool to true if so
+    private void AmIBitten()
+    {
+        // Get the closest vampire
+        GameObject closestVampire = GetClosestVampire();
+        // Get the closest hunter
+        GameObject closestHunter = GetClosestHunter();
+        // Get the distance between the agent and the closest hunter
+        float hunterDistance = Vector3.Distance(transform.position, closestHunter.transform.position);
+        // if the distance is less than 5f, break out of the method
+        if (hunterDistance < 5f)
+        {
+            return;
+        }
+        // Get the distance between the agent and the closest vampire
+        float distance = Vector3.Distance(transform.position, closestVampire.transform.position);
+        // If the distance is less than 2f
+        if (distance < 2f)
+        {
+            // Set the bitten bool to true
+            bitten = true;
+        }
+    }
+    
 
     // This method can be used to test if a certain time has elapsed since we registered an event time. 
     public bool TimeElapsedSince(float timeEventHappened, float testingTimeElapsed) => !(timeEventHappened + testingTimeElapsed > Time.time);

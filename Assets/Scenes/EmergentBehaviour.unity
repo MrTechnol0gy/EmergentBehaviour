@@ -155,8 +155,8 @@ MonoBehaviour:
   civviePrefab: {fileID: 4628890643544775394, guid: b610eb25fc3d14e459d33b4ce2141ece, type: 3}
   hunterPrefab: {fileID: 4628890643544775394, guid: 573f091a978627f44860e0153594b9d9, type: 3}
   vampirePrefab: {fileID: 4628890643544775394, guid: 923c6592a1f73e349b2bdcdf85789b5c, type: 3}
-  numCivvies: 5
-  numHunters: 1
+  numCivvies: 50
+  numHunters: 20
   numVampires: 1
 --- !u!4 &124615798
 Transform:
