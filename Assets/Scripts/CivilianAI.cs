@@ -148,6 +148,10 @@ public class CivilianAI : MonoBehaviour
         // Get the closest vampire
         GameObject closestVampire = GetClosestVampire();
         // Get the distance between the agent and the closest hunter
+        if (closestVampire == null)
+        {
+            return;
+        }
         float hunterDistance = Vector3.Distance(transform.position, closestHunter.transform.position);
         // Get the distance between the agent and the closest vampire
         float vampireDistance = Vector3.Distance(transform.position, closestVampire.transform.position);
@@ -210,22 +214,30 @@ public class CivilianAI : MonoBehaviour
         GameObject closestVampire = null;
         // Set the closest distance
         float closestDistance = Mathf.Infinity;
-        // Loop through the list of vampires
-        foreach (GameObject vampire in vampires)
+        // If the list of vampires is empty, return null
+        if (vampires.Count == 0)
         {
-            // Get the distance between the agent and the vampire
-            float distance = Vector3.Distance(transform.position, vampire.transform.position);
-            // If the distance is less than the closest distance
-            if (distance < closestDistance)
-            {
-                // Set the closest vampire
-                closestVampire = vampire;
-                // Set the closest distance
-                closestDistance = distance;
-            }
+            return null;
         }
-        // Return the closest vampire
-        return closestVampire;
+        else
+        {
+            // Loop through the list of vampires
+            foreach (GameObject vampire in vampires)
+            {
+                // Get the distance between the agent and the vampire
+                float distance = Vector3.Distance(transform.position, vampire.transform.position);
+                // If the distance is less than the closest distance
+                if (distance < closestDistance)
+                {
+                    // Set the closest vampire
+                    closestVampire = vampire;
+                    // Set the closest distance
+                    closestDistance = distance;
+                }
+            }
+            // Return the closest vampire
+            return closestVampire;
+        }
     }
 
     // Checks if the closest vampire is within 2f units of the agent and sets the bitten bool to true if so
@@ -233,6 +245,10 @@ public class CivilianAI : MonoBehaviour
     {
         // Get the closest vampire
         GameObject closestVampire = GetClosestVampire();
+        if (closestVampire == null)
+        {
+            return;
+        }
         // Get the closest hunter
         GameObject closestHunter = GetClosestHunter();
         // Get the distance between the agent and the closest hunter

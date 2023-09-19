@@ -147,6 +147,10 @@ public class VampireAI : MonoBehaviour
     {
         // Get the closest agent
         GameObject closestAgent = GetClosestAgent();
+        if (closestAgent == null)
+        {
+            return;
+        }
         // If the closest agent is a civilian
         if (closestAgent.CompareTag("Civilian"))
         {
@@ -165,6 +169,10 @@ public class VampireAI : MonoBehaviour
     {
         // Get the closest civilian
         GameObject closestCivilian = GetClosestAgent();
+        if (closestCivilian == null)
+        {
+            return;
+        }
         // Set the agent's destination to the civilian's position
         agent.SetDestination(closestCivilian.transform.position);
     }
@@ -186,27 +194,34 @@ public class VampireAI : MonoBehaviour
         GameObject closestCivilian = GetClosestCivilian();
         // Get the closest hunter
         GameObject closestHunter = GetClosestHunter();
-        // Get the distance to the closest civilian
-        float civilianDistance = Vector3.Distance(transform.position, closestCivilian.transform.position);
-        // Get the distance to the closest hunter
-        float hunterDistance = Vector3.Distance(transform.position, closestHunter.transform.position);
-        // If the agent is closer to the civilian than the hunter
-        if (civilianDistance < hunterDistance)
+        if (closestCivilian == null)
         {
-            // Return the closest civilian
-            return closestCivilian;
-        }
-        // If the agent is closer to the hunter than the civilian
-        else if (hunterDistance < civilianDistance)
-        {
-            // Return the closest hunter
             return closestHunter;
         }
-        // If the agent is equidistant from the civilian and the hunter
         else
         {
-            // Return the closest civilian
-            return closestCivilian;
+            // Get the distance to the closest civilian
+            float civilianDistance = Vector3.Distance(transform.position, closestCivilian.transform.position);
+            // Get the distance to the closest hunter
+            float hunterDistance = Vector3.Distance(transform.position, closestHunter.transform.position);
+            // If the agent is closer to the civilian than the hunter
+            if (civilianDistance < hunterDistance)
+            {
+                // Return the closest civilian
+                return closestCivilian;
+            }
+            // If the agent is closer to the hunter than the civilian
+            else if (hunterDistance < civilianDistance)
+            {
+                // Return the closest hunter
+                return closestHunter;
+            }
+            // If the agent is equidistant from the civilian and the hunter
+            else
+            {
+                // Return the closest civilian
+                return closestCivilian;
+            }
         }
     }
     // Gets the closest hunter and returns it
@@ -240,6 +255,10 @@ public class VampireAI : MonoBehaviour
     {
         // Get the list of civilians
         List<GameObject> civilians = agentSpawner.GetCivilians();
+        if (civilians.Count == 0)
+        {
+            return null;
+        }
         // Set the closest civilian
         GameObject closestCivilian = null;
         // Set the closest distance
