@@ -164,4 +164,19 @@ public class AgentSpawner : MonoBehaviour
     {
         return vampires;
     }
+    // return the starting number of civilians
+    public int GetNumCivvies()
+    {
+        return numCivvies;
+    }
+    // return the starting number of hunters
+    public int GetNumHunters()
+    {
+        return numHunters;
+    }
+    // return the starting number of vampires
+    public int GetNumVampires()
+    {
+        return numVampires;
+    }
 }

@@ -49,7 +49,7 @@ public class HunterAI : MonoBehaviour
             case States.moving:
                 //Debug.Log("I am moving.");
                 // Sets the agent's color to grey
-                GetComponent<Renderer>().material.color = Color.grey;
+                GetComponent<Renderer>().material.color = Color.green;
                 // Get a new destination
                 GoHere();
                 break; 
