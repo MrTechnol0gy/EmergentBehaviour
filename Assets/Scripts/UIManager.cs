@@ -13,10 +13,16 @@ public class UIManager : MonoBehaviour
     public TMPro.TextMeshProUGUI humanText;
     // textmesh pro text reference for the amount of hunters
     public TMPro.TextMeshProUGUI hunterText;
+    // unity start button reference
+    public UnityEngine.UI.Button startButton;
+    // unity restart button reference
+    public UnityEngine.UI.Button restartButton;
     // reference to the agent spawner
     public AgentSpawner agentSpawner;
-    // Start is called before the first frame update
-    void Start()
+    // reference to the game manager
+    public GameManager gameManager;
+    // method to initialize the values
+    public void InitializeValues()
     {
         // Set the text to the starting values
         vampireText.text = "Vampires: " + agentSpawner.GetNumVampires();
@@ -27,15 +33,23 @@ public class UIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Once every second, update all UI elements
-        if (Time.frameCount % 60 == 0)
+        bool gameRunning = gameManager.IsGameRunning();
+        if (!gameRunning)
         {
-            // Update the amount of vampires
-            vampireText.text = "Vampires: " + agentSpawner.GetVampires().Count;
-            // Update the amount of humans
-            humanText.text = "Humans: " + agentSpawner.GetCivilians().Count;
-            // Update the amount of hunters
-            hunterText.text = "Hunters: " + agentSpawner.GetHunters().Count;
+            return;
+        }
+        else
+        {
+            // Once every second, update all UI elements
+            if (Time.frameCount % 60 == 0)
+            {
+                // Update the amount of vampires
+                vampireText.text = "Vampires: " + agentSpawner.GetVampires().Count;
+                // Update the amount of humans
+                humanText.text = "Humans: " + agentSpawner.GetCivilians().Count;
+                // Update the amount of hunters
+                hunterText.text = "Hunters: " + agentSpawner.GetHunters().Count;
+            }           
         }
     }
 }

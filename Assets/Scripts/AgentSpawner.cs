@@ -32,8 +32,8 @@ public class AgentSpawner : MonoBehaviour
     // The list of vampires
     private List<GameObject> vampires;
 
-    // Start is called before the first frame update
-    void Start()
+    // Method to initialize the agents
+    public void InitializeAgents()
     {
         // Initialize the list of agents
         agents = new List<GameObject>();
@@ -178,5 +178,23 @@ public class AgentSpawner : MonoBehaviour
     public int GetNumVampires()
     {
         return numVampires;
+    }
+
+    // Destroy all agents
+    public void DestroyAgents()
+    {
+        // Destroy all agents
+        foreach (GameObject agent in agents)
+        {
+            Destroy(agent);
+        }
+        // Clear the list of agents
+        agents.Clear();
+        // Clear the list of civilians
+        civilians.Clear();
+        // Clear the list of hunters
+        hunters.Clear();
+        // Clear the list of vampires
+        vampires.Clear();
     }
 }
