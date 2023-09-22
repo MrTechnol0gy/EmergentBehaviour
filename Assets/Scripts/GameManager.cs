@@ -17,22 +17,22 @@ public class GameManager : MonoBehaviour
     {
         gameRunning = false; 
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     // Method to start the game
     public void StartGame()
     {
-        // Set the game to running
-        gameRunning = true;
-        // Start the agent spawner
-        agentSpawner.InitializeAgents();
-        // Initialize the UI values
-        uiManager.InitializeValues();
+        if (gameRunning)
+        {
+            return;
+        }
+        else
+        {
+            // Set the game to running
+            gameRunning = true;
+            // Start the agent spawner
+            agentSpawner.InitializeAgents();
+            // Initialize the UI values
+            uiManager.InitializeValues();
+        }
     }
 
     // Method to restart the game
@@ -50,6 +50,11 @@ public class GameManager : MonoBehaviour
             agentSpawner.DestroyAgents(); 
         }
     }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }   
 
     // Method to check if the game is running
     public bool IsGameRunning()

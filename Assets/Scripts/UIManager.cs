@@ -17,6 +17,8 @@ public class UIManager : MonoBehaviour
     public UnityEngine.UI.Button startButton;
     // unity restart button reference
     public UnityEngine.UI.Button restartButton;
+    // unity quit button reference
+    public UnityEngine.UI.Button quitButton;
     // reference to the agent spawner
     public AgentSpawner agentSpawner;
     // reference to the game manager
